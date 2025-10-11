@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <title>🗂️ Aufgaben & Projekte</title>
+
+    <!-- FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/de.global.min.js"></script>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"></script>
+
+    <style>
+        /* ===== Base UI ===== */
+        body {
+          font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          background-color: #f0f2f1;
+          margin: 0;
+          display: flex;
+          height: 100vh;
+          color: #333;
+          overflow: hidden;
+        }
+        #sidebar {
+          width: 250px;
+          background-color: #e9eaec;
+          border-right: 1px solid #d0d1d3;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+          box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+          z-index: 5;
+        }
+        #sidebar h2 { font-size: 22px; text-align: center; margin-bottom: 25px; color: #444; }
+        #sidebar button {
+          background: none; border: none; text-align: left; padding: 12px 14px; margin-bottom: 10px;
+          cursor: pointer; font-size: 15px; color: #333; border-radius: 8px; transition: all 0.3s ease;
+        }
+        #sidebar button:hover, #sidebar button.active { background-color: #dcdde1; }
+
+        #main { flex: 1; padding: 30px; overflow-y: auto; }
+        h1 { text-align: center; font-weight: 600; color: #2b2f33; margin-bottom: 30px; }
+
+        /* ===== Aufgaben (form + list) ===== */
+        #todo-form {
+          display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 25px;
+        }
+        #todo-form input, #todo-form button {
+          padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; background-color: #fff;
+        }
+        #todo-form button { background-color: #efefef; cursor: pointer; }
+        #todo-form button:hover { background-color: #e0e0e0; }
+
+        ul { list-style: none; padding: 0; max-width: 900px; margin: 0 auto; }
+        li {
+          background: #fff; padding: 15px 20px; margin-bottom: 12px; border-radius: 10px;
+          display: flex; justify-content: space-between; align-items: center;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.3s ease;
+        }
+        li:hover { transform: translateY(-2px); }
+        li.erledigt { background-color: #e8f5e9; color: #555; text-decoration: line-through; animation: fadeGreen 0.25s ease; }
+        @keyframes fadeGreen { from { background:#fff;} to {background:#e8f5e9;} }
+
+        .task-text { display:flex; flex-direction:column; align-items:flex-start; }
+        .task-text strong { font-size:16px; color:#222; margin-bottom:4px; }
+        .task-text small { font-size:14px; color:#555; margin-bottom:6px; }
+        .task-time { font-size:12px; color:#888; }
+        .actions { display:flex; gap:10px; }
+        .actions button { background:transparent; border:none; cursor:pointer; font-size:18px; color:#888; transition:.2s; }
+        .actions button:hover { opacity:.6; }
+        .actions button.erledigt.done { color:#2ecc71; transform: scale(1.1); }
+
+        /* ===== Calendar overlay ===== */
+        #calendarView {
+          position: fixed; top: 0; left: 250px; width: calc(100% - 250px); height: 100%;
+          background-color: #f5f5f7; display: none; flex-direction: column; z-index: 10;
+        }
+        #calendarHeader { display:flex; justify-content:space-between; align-items:center; padding:10px 20px; border-bottom:1px solid #d0d1d3; background:#e9eaec; }
+        #calendar { flex:1; padding:12px; }
+        #modal { display:none; position:fixed; z-index:20; inset:0; background:rgba(0,0,0,0.45); justify-content:center; align-items:center; }
+        .modal-content {
+          background:#fff; padding:20px; width:360px; border-radius:12px; box-shadow:0 10px 24px rgba(0,0,0,0.2);
+          display:flex; flex-direction:column; gap:10px;
+        }
+
+        /* ===== Projekte (Sticky Wall) ===== */
+        #projekte {
+          display:none;
+          width:100%;
+          height: calc(100vh - 80px);
+          background:#f5f6f8;
+          border-radius:16px;
+          padding:30px;
+          overflow-y: auto;      /* только вертикальная прокрутка */
+          overflow-x: hidden;    /* без горизонтальной */
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          gap:24px;
+          box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+        }
+        .sticky-wall {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); /* адаптивная сетка без горизонтального скролла */
+          gap: 20px;
+          width: 100%;
+          max-width: 1200px;
+        }
+        .sticky-card {
+          background: var(--note-bg, #fff9c4);
+          border-radius: 18px;
+          box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+          padding: 18px 20px 24px 20px;
+          min-height: 180px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+          cursor: text;
+          transition: transform .15s ease, box-shadow .15s ease;
+          backdrop-filter: blur(6px);
+          background-image: linear-gradient(to bottom right, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+          opacity: 0; transform: scale(0.98);
+          animation: wallPop .28s ease forwards;
+        }
+        @keyframes wallPop { to { opacity:1; transform:scale(1);} }
+        .sticky-card:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(0,0,0,0.10); }
+        .sticky-card h4 { font-weight: 700; font-size: 18px; margin: 0 0 8px 0; outline: none; }
+        .sticky-card .body {
+          flex: 1; border: none; background: transparent; resize: none; font-size: 14px;
+          color: #333; outline: none; line-height: 1.5;
+          white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; /* не растягиваем по горизонтали */
+        }
+        .card-actions { display:flex; justify-content:space-between; align-items:center; margin-top:12px; }
+        .color-dots { display:flex; gap:6px; }
+        .dot { width:14px; height:14px; border-radius:50%; border:1px solid rgba(0,0,0,0.15); cursor:pointer; transition: transform .15s ease; }
+        .dot:hover { transform: scale(1.2); }
+        .delete-btn { border:none; background:transparent; cursor:pointer; color:#666; font-size:18px; }
+        .delete-btn:hover { opacity:.6; }
+
+        .add-card-btn {
+          width: 90px; height: 90px; border-radius: 18px; background: #e4e6ea; color: #555; font-size: 44px;
+          display: flex; justify-content: center; align-items: center; cursor: pointer;
+          box-shadow: 0 6px 12px rgba(0,0,0,0.06); transition: all .2s ease; user-select: none;
+        }
+        .add-card-btn:hover { background: #d9dbde; transform: scale(1.04); }
+
+        /* На очень узких экранах — одна колонка, чтобы не появлялся горизонтальный скролл */
+        @media (max-width: 520px) { .sticky-wall { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div id="sidebar">
+    <h2>📘 Übersicht</h2>
+    <button id="btn-all"      onclick="setView('all')">🗒️ Aufgaben</button>
+    <button id="btn-today"    onclick="setView('today')">📅 Heute</button>
+    <button id="btn-tomorrow" onclick="setView('tomorrow')">🌤️ Morgen</button>
+    <button id="btn-calendar" onclick="openCalendar()">🗓️ Kalender</button>
+    <button id="btn-projekte" onclick="setView('projekte')">🧩 Projekte</button>
+</div>
+
+<div id="main">
+    <h1>🗂️ Aufgabenplaner</h1>
+
+    <!-- Aufgaben -->
+    <form id="todo-form">
+        <input type="text" id="titel"        placeholder="Titel der Aufgabe" required />
+        <input type="text" id="beschreibung" placeholder="Beschreibung" />
+        <input type="text" id="datum"        placeholder="Datum auswählen" />
+        <input type="text" id="zeit"         placeholder="Uhrzeit auswählen" />
+        <button type="submit">＋ Hinzufügen</button>
+    </form>
+
+    <ul id="todo-list"></ul>
+
+    <!-- Projekte (Sticky Wall) -->
+    <div id="projekte">
+        <div class="sticky-wall" id="stickyWall"></div>
+        <div class="add-card-btn" onclick="addSticky()">＋</div>
+    </div>
+</div>
+
+<!-- Calendar overlay -->
+<div id="calendarView">
+    <div id="calendarHeader">
+        <h2>📆 Kalender</h2>
+        <button onclick="closeCalendar()">✕</button>
+    </div>
+    <div id="calendar"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal">
+    <div class="modal-content">
+        <h3>Neue Aufgabe</h3>
+        <input type="text" id="modalTitel" placeholder="Titel" />
+        <input type="text" id="modalBeschreibung" placeholder="Beschreibung" />
+        <input type="text" id="modalZeit" placeholder="Uhrzeit auswählen" />
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:6px;">
+            <button onclick="closeModal()">Abbrechen</button>
+            <button onclick="saveTaskFromModal()">Speichern</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ===== Aufgaben (REST) ===== */
+    const API_URL = "http://localhost:8080/api/aufgaben";
+    let filter = "all";
+    let calendar;
+    let selectedDate = null;
+
+    flatpickr("#datum", { locale: "de", dateFormat: "Y-m-d", altInput: true, altFormat: "d. F Y" });
+    flatpickr("#zeit",  { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
+    flatpickr("#modalZeit", { enableTime: true, noCalendar: true, dateFormat: "H:i", time_24hr: true });
+
+    function setView(type) {
+      document.querySelectorAll("#sidebar button").forEach(b => b.classList.remove("active"));
+      document.getElementById("btn-" + type)?.classList.add("active");
+
+      const list = document.getElementById("todo-list");
+      const form = document.getElementById("todo-form");
+      const proj = document.getElementById("projekte");
+      const main = document.getElementById("main");
+
+      list.style.display = "none"; form.style.display = "none"; proj.style.display = "none";
+      closeCalendar();
+
+      if (type === "projekte") {
+        proj.style.display = "flex";
+        main.style.overflowY = "hidden";  // скролл делаем внутри #projekte
+        loadKanban();
+      } else {
+        list.style.display = "block"; form.style.display = "flex";
+        main.style.overflowY = "auto";
+        filter = type; loadTasks();
+      }
+    }
+
+    function openCalendar() { document.getElementById("calendarView").style.display = "flex"; renderCalendar(); }
+    function closeCalendar(){ document.getElementById("calendarView").style.display = "none"; }
+
+    function renderCalendar() {
+      const el = document.getElementById("calendar");
+      if (calendar) calendar.destroy();
+      calendar = new FullCalendar.Calendar(el, {
+        locale: "de",
+        initialView: "dayGridMonth",
+        height: "100%",
+        headerToolbar: { left:"prev,next today", center:"title", right:"dayGridMonth,timeGridWeek,timeGridDay" },
+        dateClick: (info) => openModal(info.dateStr),
+        events: []
+      });
+      calendar.render();
+      loadTasks();
+    }
+
+    function openModal(dateStr) {
+      selectedDate = dateStr;
+      document.getElementById("modalTitel").value = "";
+      document.getElementById("modalBeschreibung").value = "";
+      document.getElementById("modalZeit").value = "";
+      document.getElementById("modal").style.display = "flex";
+    }
+    function closeModal() { document.getElementById("modal").style.display = "none"; }
+
+    async function saveTaskFromModal() {
+      const titel = document.getElementById("modalTitel").value.trim();
+      const beschreibung = document.getElementById("modalBeschreibung").value.trim();
+      const zeit = document.getElementById("modalZeit").value;
+      if (!titel) return;
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ titel, beschreibung, erledigt:false, datum:selectedDate, zeit })
+      });
+      closeModal(); loadTasks();
+    }
+
+    async function loadTasks() {
+      const res = await fetch(API_URL);
+      let tasks = await res.json();
+      const today = new Date().toISOString().split("T")[0];
+         const tomorrow = new Date(Date.now()+86400000).toISOString().split("T")[0];
+      if (filter === "today")    tasks = tasks.filter(t => t.datum === today);
+      if (filter === "tomorrow") tasks = tasks.filter(t => t.datum === tomorrow);
+
+      const list = document.getElementById("todo-list");
+      list.innerHTML = "";
+      tasks.forEach(t => {
+        const li = document.createElement("li");
+        li.className = t.erledigt ? "erledigt" : "";
+
+        const text = document.createElement("div");
+        text.className = "task-text";
+        text.innerHTML = `
+          <strong>${t.titel}</strong>
+          <small>${t.beschreibung || ""}</small>
+          <div class="task-time">📅 ${t.datum || ""} ${t.zeit ? "🕒 " + t.zeit.substring(0,5) : ""}</div>
+        `;
+
+        const actions = document.createElement("div"); actions.className = "actions";
+        const doneBtn = document.createElement("button");
+        doneBtn.className = "erledigt" + (t.erledigt ? " done" : "");
+        doneBtn.innerHTML = t.erledigt ? "✅" : "⬜";
+        doneBtn.onclick = () => toggleDone(t.id, !t.erledigt);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "löschen"; delBtn.innerHTML = "🗑️"; delBtn.onclick = () => deleteTask(t.id);
+
+        actions.append(doneBtn, delBtn);
+        li.append(text, actions);
+        list.appendChild(li);
+      });
+
+      if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(tasks.map(t => ({
+          title: t.titel,
+          start: t.datum ? (t.datum + (t.zeit ? "T" + t.zeit : "")) : undefined
+        })));
+      }
+    }
+
+    async function addTask(e) {
+      e.preventDefault();
+      const titel = document.getElementById("titel").value.trim();
+      if (!titel) return;
+      const beschreibung = document.getElementById("beschreibung").value.trim();
+      const datum = document.getElementById("datum").value;
+      const zeit = document.getElementById("zeit").value;
+      await fetch(API_URL, {
+        method: "POST", headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ titel, beschreibung, erledigt:false, datum, zeit })
+      });
+      e.target.reset(); loadTasks();
+    }
+    document.getElementById("todo-form").addEventListener("submit", addTask);
+
+    async function toggleDone(id, erledigt) {
+      const res = await fetch(`${API_URL}/${id}`); const t = await res.json();
+      t.erledigt = erledigt;
+      await fetch(`${API_URL}/${id}`, { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(t) });
+      loadTasks();
+    }
+    async function deleteTask(id) { await fetch(`${API_URL}/${id}`, { method:"DELETE" }); loadTasks(); }
+
+    /* ===== Projekte (Sticky Wall) ===== */
+    const KANBAN_API = "http://localhost:8080/api/kanban/cards";
+    const COLOR_SET = ["#fff59d","#a5d6a7","#90caf9","#f48fb1","#ffcc80","#e1bee7"];
+
+    async function loadKanban() {
+      const res = await fetch(KANBAN_API);
+      const cards = await res.json();
+      cards.sort((a,b)=> (a.position ?? 0) - (b.position ?? 0));
+      const wall = document.getElementById("stickyWall");
+      wall.innerHTML = "";
+      cards.forEach(renderSticky);
+    }
+
+    function splitText(txt="") {
+      const parts = txt.split("\n");
+      const title = parts.shift() || "";
+      const body  = parts.join("\n");
+      return { title, body };
+    }
+    function joinText(title, body) {
+      const t = (title || "").trim();
+      const b = (body  || "").trim();
+      return b ? `${t}\n${b}` : t;
+    }
+
+    function renderSticky(card) {
+      const { title, body } = splitText(card.text || "");
+
+      const el = document.createElement("div");
+      el.className = "sticky-card";
+      el.style.setProperty("--note-bg", card.color || "#fff9c4");
+
+      const h4 = document.createElement("h4");
+      h4.contentEditable = true;
+      h4.innerText = title || "";           // сразу пусто
+
+      const ta = document.createElement("textarea");
+      ta.className = "body";
+      ta.value = body || "";
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const dots = document.createElement("div");
+      dots.className = "color-dots";
+      COLOR_SET.forEach(c=>{
+        const dot = document.createElement("div");
+        dot.className = "dot";
+        dot.style.background = c;
+        dot.title = c;
+        dot.onclick = async ()=>{
+          el.style.setProperty("--note-bg", c);
+          await persist({ ...card, color: c });
+          card.color = c;
+        };
+        dots.append(dot);
+      });
+
+      const del = document.createElement("button");
+      del.className = "delete-btn";
+      del.innerHTML = "✕";
+      del.title = "Löschen";
+      del.onclick = async () => {
+        await fetch(`${KANBAN_API}/${card.id}`, { method:"DELETE" });
+        el.remove();
+      };
+
+      actions.append(dots, del);
+      el.append(h4, ta, actions);
+      document.getElementById("stickyWall").append(el);
+
+      const save = debounce(async ()=>{
+        const newText = joinText(h4.innerText, ta.value);
+        card.text = newText;
+        await persist(card);
+      }, 380);
+      h4.addEventListener("input", save);
+      ta.addEventListener("input", save);
+    }
+
+    async function addSticky() {
+      const color = COLOR_SET[Math.floor(Math.random()*COLOR_SET.length)];
+      const wall = document.getElementById("stickyWall");
+      const position = wall.children.length;
+      const res = await fetch(KANBAN_API, {
+        method: "POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify({ text:"", status:"IDEEN", color, position })
+      });
+      const saved = await res.json();
+      renderSticky(saved);
+      const lastTitle = wall.lastElementChild?.querySelector("h4");
+      if (lastTitle) lastTitle.focus();
+    }
+
+    async function persist(card) {
+      await fetch(`${KANBAN_API}/${card.id}`, {
+        method: "PUT",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(card)
+      });
+    }
+
+    function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); }; }
+
+    /* ===== Start ===== */
+    setView("all");
+</script>
+</body>
+</html>
