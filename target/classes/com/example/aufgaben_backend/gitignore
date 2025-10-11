@@ -1,0 +1,20 @@
+@"
+# Build
+/target/
+
+# IDE
+/.idea/
+/*.iml
+
+# Local DB (H2 files)
+/data/
+*.mv.db
+*.trace.db
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+"@ | Add-Content -Encoding utf8 .gitignore
