@@ -1,0 +1,10 @@
+com\example\aufgaben_backend\controller\AufgabeController.class
+com\example\aufgaben_backend\repository\AufgabeRepository.class
+com\example\aufgaben_backend\AufgabenBackendApplication.class
+com\example\aufgaben_backend\controller\KanbanController.class
+com\example\aufgaben_backend\CorsConfig.class
+com\example\aufgaben_backend\controller\HealthController.class
+com\example\aufgaben_backend\model\Aufgabe.class
+com\example\aufgaben_backend\model\ProjectCard.class
+com\example\aufgaben_backend\repository\ProjectCardRepository.class
+com\example\aufgaben_backend\model\CardStatus.class
