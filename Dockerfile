@@ -10,4 +10,5 @@ COPY src ./src
 RUN ./mvnw -q -DskipTests package
 
 EXPOSE 8080
-CMD ["java", "-jar", "target/aufgaben-backend-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "target/aufgaben-backend-1.0.0.jar"]
+
