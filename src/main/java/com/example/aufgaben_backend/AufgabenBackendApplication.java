@@ -15,6 +15,6 @@ public class AufgabenBackendApplication {
 
     @GetMapping("/health")
     public String health() {
-        return "✅ Server is running (main class)!";
+        return "✅ Server is running!";
     }
 }
