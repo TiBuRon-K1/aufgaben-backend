@@ -5,7 +5,9 @@
     <title>🗂️ Aufgaben & Projekte</title>
 
     <!-- FullCalendar -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+
+    " />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/de.global.min.js"></script>
 
@@ -209,7 +211,7 @@
 
 <script>
     /* ===== Aufgaben (REST) ===== */
-    const API_URL = "http://localhost:8080/api/aufgaben";
+    const API_URL = "https://aufgaben-backend.onrender.com/api/aufgaben";
     let filter = "all";
     let calendar;
     let selectedDate = null;
@@ -350,7 +352,7 @@
     async function deleteTask(id) { await fetch(`${API_URL}/${id}`, { method:"DELETE" }); loadTasks(); }
 
     /* ===== Projekte (Sticky Wall) ===== */
-    const KANBAN_API = "http://localhost:8080/api/kanban/cards";
+    const KANBAN_API = "https://aufgaben-backend.onrender.com/api/kanban/cards";
     const COLOR_SET = ["#fff59d","#a5d6a7","#90caf9","#f48fb1","#ffcc80","#e1bee7"];
 
     async function loadKanban() {
