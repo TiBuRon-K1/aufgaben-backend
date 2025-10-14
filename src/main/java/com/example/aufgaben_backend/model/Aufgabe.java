@@ -16,18 +16,18 @@ public class Aufgabe {
     @Column(length = 1000)
     private String beschreibung = "";
 
-    private boolean erledigt = false;
+    // ✅ поменяли на объект Boolean
+    private Boolean erledigt = false;
 
-    // 🕒 Новые поля:
-    private LocalDate datum; // дата выполнения
-    private LocalTime zeit;  // время выполнения
+    private LocalDate datum;
+    private LocalTime zeit;
 
     public Aufgabe() {}
 
-    public Aufgabe(String titel, String beschreibung, boolean erledigt, LocalDate datum, LocalTime zeit) {
+    public Aufgabe(String titel, String beschreibung, Boolean erledigt, LocalDate datum, LocalTime zeit) {
         this.titel = titel;
         this.beschreibung = (beschreibung != null) ? beschreibung : "";
-        this.erledigt = erledigt;
+        this.erledigt = erledigt != null ? erledigt : false;
         this.datum = datum;
         this.zeit = zeit;
     }
@@ -54,16 +54,12 @@ public class Aufgabe {
         this.beschreibung = (beschreibung != null) ? beschreibung : "";
     }
 
-    public boolean isErledigt() {
+    public Boolean getErledigt() {
         return erledigt;
     }
 
-    public void setErledigt(boolean erledigt) {
+    public void setErledigt(Boolean erledigt) {
         this.erledigt = erledigt;
-    }
-
-    public Boolean getErledigt() { // ✅ добавляем метод, которого не хватало
-        return erledigt;
     }
 
     public LocalDate getDatum() {
