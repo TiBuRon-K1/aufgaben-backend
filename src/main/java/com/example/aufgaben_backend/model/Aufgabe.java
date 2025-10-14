@@ -62,6 +62,10 @@ public class Aufgabe {
         this.erledigt = erledigt;
     }
 
+    public Boolean getErledigt() { // ✅ добавляем метод, которого не хватало
+        return erledigt;
+    }
+
     public LocalDate getDatum() {
         return datum;
     }
