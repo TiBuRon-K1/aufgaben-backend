@@ -16,7 +16,7 @@ public class Aufgabe {
     @Column(length = 1000)
     private String beschreibung = "";
 
-    private Boolean erledigt = false;  // ✅ Boolean вместо boolean
+    private Boolean erledigt = false; // ✅ именно Boolean, не boolean
 
     private LocalDate datum;
     private LocalTime zeit;
