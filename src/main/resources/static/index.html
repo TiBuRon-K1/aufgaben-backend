@@ -344,12 +344,41 @@
     document.getElementById("todo-form").addEventListener("submit", addTask);
 
     async function toggleDone(id, erledigt) {
-      const res = await fetch(`${API_URL}/${id}`); const t = await res.json();
-      t.erledigt = erledigt;
-      await fetch(`${API_URL}/${id}`, { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(t) });
-      loadTasks();
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ erledigt: erledigt })
+    });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
     }
-    async function deleteTask(id) { await fetch(`${API_URL}/${id}`, { method:"DELETE" }); loadTasks(); }
+
+    console.log("✅ Aufgabe aktualisiert:", await response.json());
+    loadTasks();
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren der Aufgabe:", error);
+    alert("❌ Fehler beim Aktualisieren der Aufgabe.");
+  }
+}
+
+async function deleteTask(id) {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
+    }
+
+    console.log("🗑️ Aufgabe gelöscht");
+    loadTasks();
+  } catch (error) {
+    console.error("Fehler beim Löschen der Aufgabe:", error);
+    alert("❌ Fehler beim Löschen der Aufgabe.");
+  }
+}
+
 
     /* ===== Projekte (Sticky Wall) ===== */
     const KANBAN_API = "https://aufgaben-backend.onrender.com/api/kanban/cards";
