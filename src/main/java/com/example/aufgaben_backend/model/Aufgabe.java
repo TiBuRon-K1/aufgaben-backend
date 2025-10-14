@@ -16,8 +16,7 @@ public class Aufgabe {
     @Column(length = 1000)
     private String beschreibung = "";
 
-    // ✅ поменяли на объект Boolean
-    private Boolean erledigt = false;
+    private Boolean erledigt = false;  // ✅ Boolean вместо boolean
 
     private LocalDate datum;
     private LocalTime zeit;
@@ -27,7 +26,7 @@ public class Aufgabe {
     public Aufgabe(String titel, String beschreibung, Boolean erledigt, LocalDate datum, LocalTime zeit) {
         this.titel = titel;
         this.beschreibung = (beschreibung != null) ? beschreibung : "";
-        this.erledigt = erledigt != null ? erledigt : false;
+        this.erledigt = (erledigt != null) ? erledigt : false;
         this.datum = datum;
         this.zeit = zeit;
     }
@@ -59,7 +58,7 @@ public class Aufgabe {
     }
 
     public void setErledigt(Boolean erledigt) {
-        this.erledigt = erledigt;
+        this.erledigt = (erledigt != null) ? erledigt : false;
     }
 
     public LocalDate getDatum() {
