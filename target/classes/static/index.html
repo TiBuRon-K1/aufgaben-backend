@@ -5,7 +5,9 @@
     <title>🗂️ Aufgaben & Projekte</title>
 
     <!-- FullCalendar -->
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
+
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/de.global.min.js"></script>
 
@@ -209,7 +211,7 @@
 
 <script>
     /* ===== Aufgaben (REST) ===== */
-    const API_URL = "http://localhost:8080/api/aufgaben";
+    const API_URL = "https://aufgaben-backend.onrender.com/api/aufgaben";
     let filter = "all";
     let calendar;
     let selectedDate = null;
@@ -342,15 +344,44 @@
     document.getElementById("todo-form").addEventListener("submit", addTask);
 
     async function toggleDone(id, erledigt) {
-      const res = await fetch(`${API_URL}/${id}`); const t = await res.json();
-      t.erledigt = erledigt;
-      await fetch(`${API_URL}/${id}`, { method:"PUT", headers:{ "Content-Type":"application/json" }, body: JSON.stringify(t) });
-      loadTasks();
+  try {
+    const response = await fetch(`${API_URL}/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ erledigt: erledigt })
+    });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
     }
-    async function deleteTask(id) { await fetch(`${API_URL}/${id}`, { method:"DELETE" }); loadTasks(); }
+
+    console.log("✅ Aufgabe aktualisiert:", await response.json());
+    loadTasks();
+  } catch (error) {
+    console.error("Fehler beim Aktualisieren der Aufgabe:", error);
+    alert("❌ Fehler beim Aktualisieren der Aufgabe.");
+  }
+}
+
+async function deleteTask(id) {
+  try {
+    const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
+    }
+
+    console.log("🗑️ Aufgabe gelöscht");
+    loadTasks();
+  } catch (error) {
+    console.error("Fehler beim Löschen der Aufgabe:", error);
+    alert("❌ Fehler beim Löschen der Aufgabe.");
+  }
+}
+
 
     /* ===== Projekte (Sticky Wall) ===== */
-    const KANBAN_API = "http://localhost:8080/api/kanban/cards";
+    const KANBAN_API = "https://aufgaben-backend.onrender.com/api/kanban/cards";
     const COLOR_SET = ["#fff59d","#a5d6a7","#90caf9","#f48fb1","#ffcc80","#e1bee7"];
 
     async function loadKanban() {
