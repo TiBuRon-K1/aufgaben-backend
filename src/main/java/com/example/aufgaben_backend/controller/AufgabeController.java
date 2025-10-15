@@ -18,47 +18,27 @@ public class AufgabeController {
         this.aufgabeRepository = aufgabeRepository;
     }
 
-    // 🔹 Все задачи
-    @GetMapping
-    public List<Aufgabe> alleAufgaben() {
-        return aufgabeRepository.findAll();
+    @GetMapping("/{id}")
+    public Aufgabe eineAufgabe(@PathVariable("id") Long id) {
+        return aufgabeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Aufgabe nicht gefunden"));
     }
 
-    // 🔹 Создать новую задачу
-    @PostMapping
-    public Aufgabe neueAufgabe(@RequestBody Aufgabe aufgabe) {
-        if (aufgabe.getErledigt() == null) {
-            aufgabe.setErledigt(false);
-        }
-        System.out.println("🟢 Neue Aufgabe: " + aufgabe);
-        return aufgabeRepository.save(aufgabe);
-    }
-
-    // 🔹 Обновить задачу (галочка)
     @PutMapping("/{id}")
-    public Aufgabe aufgabeAktualisieren(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-        System.out.println("🟢 PUT AUFGERUFEN: id=" + id + ", body=" + body);
-
-        Optional<Aufgabe> optionalAufgabe = aufgabeRepository.findById(id);
-        if (optionalAufgabe.isEmpty()) {
-            throw new RuntimeException("Aufgabe mit ID " + id + " nicht gefunden");
-        }
-
-        Aufgabe a = optionalAufgabe.get();
-
-        if (body.containsKey("titel")) a.setTitel((String) body.get("titel"));
-        if (body.containsKey("beschreibung")) a.setBeschreibung((String) body.get("beschreibung"));
-        if (body.containsKey("datum")) a.setDatum(body.get("datum") != null ? java.time.LocalDate.parse((String) body.get("datum")) : null);
-        if (body.containsKey("zeit")) a.setZeit(body.get("zeit") != null ? java.time.LocalTime.parse((String) body.get("zeit")) : null);
-        if (body.containsKey("erledigt")) a.setErledigt((Boolean) body.get("erledigt"));
-
-        return aufgabeRepository.save(a);
+    public Aufgabe aufgabeAktualisieren(@PathVariable("id") Long id, @RequestBody Aufgabe aktualisiert) {
+        return aufgabeRepository.findById(id).map(a -> {
+            if (aktualisiert.getTitel() != null) a.setTitel(aktualisiert.getTitel());
+            if (aktualisiert.getBeschreibung() != null) a.setBeschreibung(aktualisiert.getBeschreibung());
+            a.setErledigt(aktualisiert.getErledigt());
+            if (aktualisiert.getDatum() != null) a.setDatum(aktualisiert.getDatum());
+            if (aktualisiert.getZeit() != null) a.setZeit(aktualisiert.getZeit());
+            return aufgabeRepository.save(a);
+        }).orElseThrow(() -> new RuntimeException("Aufgabe nicht gefunden"));
     }
 
-    // 🔹 Удалить задачу
     @DeleteMapping("/{id}")
-    public void aufgabeLöschen(@PathVariable Long id) {
-        System.out.println("🗑️ DELETE AUFGERUFEN: id=" + id);
+    public void aufgabeLöschen(@PathVariable("id") Long id) {
         aufgabeRepository.deleteById(id);
+
     }
 }
