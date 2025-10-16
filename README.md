@@ -57,7 +57,7 @@ curl -X PUT https://aufgaben-backend.onrender.com/api/aufgaben/1 \
 curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
 
 
-```markdown
+---markdown
 ## 🖼️ Screenshots
 
 <p align="center">
@@ -65,7 +65,3 @@ curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
   <img src="./screenshot2.png" width="30%">
   <img src="./screenshot3.png" width="30%">
 </p>
-## 🖼️ Screenshot
-![Aufgabenplaner Screenshot](./screenshot.png)
-![Aufgabenplaner Screenshot](./screenshot2.png)
-![Aufgabenplaner Screenshot](./screenshot3.png)
