@@ -56,6 +56,15 @@ curl -X PUT https://aufgaben-backend.onrender.com/api/aufgaben/1 \
 # Aufgabe löschen
 curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
 
+
+```markdown
+## 🖼️ Screenshots
+
+<p align="center">
+  <img src="./screenshot.png" width="30%">
+  <img src="./screenshot2.png" width="30%">
+  <img src="./screenshot3.png" width="30%">
+</p>
 ## 🖼️ Screenshot
 ![Aufgabenplaner Screenshot](./screenshot.png)
 ![Aufgabenplaner Screenshot](./screenshot2.png)
