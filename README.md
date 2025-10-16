@@ -40,24 +40,6 @@ _(Hinweis: Beim ersten Aufruf kann es 30–60 Sekunden dauern, bis der Server im
 
 ---
 
-## 🧪 Beispiel (cURL)
-
-```bash
-# Neue Aufgabe erstellen
-curl -X POST https://aufgaben-backend.onrender.com/api/aufgaben \
-  -H "Content-Type: application/json" \
-  -d '{"titel":"Einkaufen","beschreibung":"Milch & Brot","datum":"2025-10-16","zeit":"09:00"}'
-
-# Aufgabe als erledigt markieren
-curl -X PUT https://aufgaben-backend.onrender.com/api/aufgaben/1 \
-  -H "Content-Type: application/json" \
-  -d '{"erledigt":true}'
-
-# Aufgabe löschen
-curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
-
-
----
 
 ## 🖼️ Screenshots
 
