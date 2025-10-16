@@ -1,37 +1,62 @@
-# Aufgaben Backend (ToDo)
+# 🗂️ Aufgabenplaner — To-Do + Kalender + Sticky Notes
 
-Ein einfaches Spring Boot Backend für eine Aufgabenliste (auf Deutsch).
+**🌐 Live-Demo:** [https://aufgaben-backend.onrender.com](https://aufgaben-backend.onrender.com)  
+_(Hinweis: Beim ersten Aufruf kann es 30–60 Sekunden dauern, bis der Server im Free-Tier aufwacht.)_
 
-## Voraussetzungen
-- JDK 21 oder höher
-- Maven
+---
 
-## Starten
-1. Projekt entpacken
-2. In IntelliJ öffnen (File → Open → ordner `aufgaben-backend`) oder mit Maven starten:
+## ✨ Features
+✅ Aufgaben erstellen, abhaken und löschen  
+📅 Kalenderansicht mit Terminen (FullCalendar)  
+📝 Sticky Notes / Kanban mit Farbe & Inline-Edit  
+🗄️ REST API mit Spring Boot + H2-Datenbank  
+🐳 Docker-Container, bereitgestellt über Render
+
+---
+
+## ⚙️ Tech Stack
+
+| Bereich | Technologie |
+|----------|--------------|
+| **Backend** | Java 17 / Spring Boot 3 / JPA / H2 |
+| **Frontend** | HTML / CSS / Vanilla JavaScript / FullCalendar / Flatpickr |
+| **Deployment** | Docker + Render |
+| **Build Tool** | Maven |
+
+---
+
+## 🔗 REST API Endpunkte
+
+| Methode | Endpoint | Beschreibung |
+|----------|-----------|--------------|
+| `GET` | `/api/aufgaben` | Alle Aufgaben abrufen |
+| `POST` | `/api/aufgaben` | Neue Aufgabe erstellen |
+| `PUT` | `/api/aufgaben/{id}` | Aufgabe aktualisieren (z. B. erledigt = true) |
+| `DELETE` | `/api/aufgaben/{id}` | Aufgabe löschen |
+| `GET` | `/api/kanban/cards` | Alle Kanban-Karten abrufen |
+| `POST` | `/api/kanban/cards` | Neue Karte hinzufügen |
+| `PUT` | `/api/kanban/cards/{id}` | Karte bearbeiten |
+| `DELETE` | `/api/kanban/cards/{id}` | Karte löschen |
+
+---
+
+## 🧪 Beispiel (cURL)
+
 ```bash
-./mvnw spring-boot:run
-```
+# Neue Aufgabe erstellen
+curl -X POST https://aufgaben-backend.onrender.com/api/aufgaben \
+  -H "Content-Type: application/json" \
+  -d '{"titel":"Einkaufen","beschreibung":"Milch & Brot","datum":"2025-10-16","zeit":"09:00"}'
 
-Das Backend läuft unter `http://localhost:8080`
-H2 Konsole: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:aufgaben_db`)
+# Aufgabe als erledigt markieren
+curl -X PUT https://aufgaben-backend.onrender.com/api/aufgaben/1 \
+  -H "Content-Type: application/json" \
+  -d '{"erledigt":true}'
 
-## API (Deutsch)
-- `GET /api/aufgaben` — alle Aufgaben holen
-- `POST /api/aufgaben` — neue Aufgabe erstellen (JSON)
-- `PUT /api/aufgaben/{id}` — Aufgabe aktualisieren
-- `DELETE /api/aufgaben/{id}` — Aufgabe löschen
+# Aufgabe löschen
+curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
 
-### Beispiel: neue Aufgabe erstellen
-```bash
-curl -X POST http://localhost:8080/api/aufgaben -H "Content-Type: application/json" -d '{"titel":"Neues Ziel","beschreibung":"Beschreibung","erledigt":false}'
-```
-
-### Beispiel: Aufgaben abrufen
-```bash
-curl http://localhost:8080/api/aufgaben
-```
-
-## Hinweise
-- Der Server verwendet eine eingebaute H2 In-Memory Datenbank. Beim Neustart gehen die Daten verloren (außer `data.sql` initialisiert beim Start).
-- API-Pfade und Felder sind auf Deutsch (titel, beschreibung, erledigt).
+## 🖼️ Screenshot
+![Aufgabenplaner Screenshot](./screenshot.png)
+![Aufgabenplaner Screenshot](./screenshot2.png)
+![Aufgabenplaner Screenshot](./screenshot3.png)
