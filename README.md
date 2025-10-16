@@ -57,6 +57,11 @@ curl -X PUT https://aufgaben-backend.onrender.com/api/aufgaben/1 \
 curl -X DELETE https://aufgaben-backend.onrender.com/api/aufgaben/1
 
 
+# 🧠 Beispiel (cURL)
+
+```bash
+curl -X POST ...
+
 ---markdown
 ## 🖼️ Screenshots
 
